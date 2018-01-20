@@ -1,0 +1,26 @@
+
+============================= PROTOCOL DESCRIPTION =============================
+Requests can be sent from the client to its child processes or the server.
+The request is an unsigned char. It is assumed that this data type takes up
+one byte, and that one byte equals eight bits.
+--------------------------------------------------------------------------------
+
+Request structure:
+[Bit 7 | Bit 6 | Bit 5 | Bit 4 | Bit 3 | Bit 2 | Bit 1 | Bit 0]
+--------------------------------------------------------------------------------
+
+Bit allocation:
+Bit 7 describes the type of request. If this bit is set to 0, the request is a job
+request, and the remaining bits specify the number of jobs requested. This means
+that 0-126 jobs can be requested at once. If Bits 6 through 0 are all equal to 1
+(the whole request is 127), all jobs are sent.
+
+If Bit 7 is set to 1, the request is a termination request. If the remaining bits
+are all equal to 0 (the whole request is 128), the termination is without error.
+Any other value (129-255) assumes termination with an error.
+
+================================ JUSTIFICATION =================================
+There is an obvious downside to allocating one byte (char) for requests instead
+of four (int): one cannot request up to hundreds of millions of jobs at once.
+Still, one character is easier to send, and there are no byte order (endianness)
+issues, since there is only one byte to deal with.
